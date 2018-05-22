@@ -1,10 +1,15 @@
-#!/bin/bash -e
-#
-# S2I run script for the 'springboot-java' image.
-# The run script executes the server that runs your application.
-#
-# For more information see the documentation:
-#	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
-#
+ARTIFACT_DIR=${ARTIFACT_DIR:-build/libs}
+APP_FILE="${APP_FILE:-app.jar}"
 
-exec java -Djava.security.egd=file:/dev/./urandom -jar /opt/openshift/app.jar $APP_OPTIONS
+echo "---->>>> Starting Spring Boot application"
+echo "---->>>> # APP_FILE = $APP_FILE"
+echo "---->>>> # JAVA_OPTS = $JAVA_OPTS"
+
+if [[ -f "$APP_FILE" ]]; then
+  echo "---->>>> APP_FILE found"
+  echo "---->>>> Running application from jar (java $JAVA_OPTS -jar $APP_FILE)"
+  java $JAVA_OPTS -jar $APP_FILE
+else
+  echo "---->>>> Running application from jar (java $JAVA_OPTS -jar $(find $ARTIFACT_DIR -name *.jar))"
+  java $JAVA_OPTS -jar `find $ARTIFACT_DIR -name *.jar`
+fi
